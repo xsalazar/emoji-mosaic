@@ -8,7 +8,7 @@ import {
   IconButton,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Download, Upload, ContentCopy } from "@mui/icons-material";
+import { Download, Upload, ContentCopy, Replay } from "@mui/icons-material";
 import saveAs from "file-saver";
 import JSZip from "jszip";
 import axios from "axios";
@@ -28,7 +28,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
     this.state = {
       isUploading: false,
       isDownloading: false,
-      emojiName: "emoji",
+      emojiName: "",
       imageParts: [],
     };
 
@@ -36,6 +36,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
     this.downloadImages = this.downloadImages.bind(this);
     this.handleEmojiNameChange = this.handleEmojiNameChange.bind(this);
     this.handleCopy = this.handleCopy.bind(this);
+    this.handleReset = this.handleReset.bind(this);
   }
   render() {
     const renderedImages = [];
@@ -95,26 +96,49 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
           </Box>
 
           {/* Configuration / Download */}
-          <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Box sx={{ display: "flex", justifyContent: "center", pt: 4 }}>
+            {/* Emoji Name */}
             <TextField
               id="standard-basic"
-              label="emoji-name"
+              label=":emoji-name:"
               variant="outlined"
               size="small"
+              value={this.state.emojiName}
               onChange={this.handleEmojiNameChange}
+              disabled={this.state.imageParts.length === 0}
             />
 
+            {/* Download Button */}
             <IconButton
+              color="primary"
               onClick={this.downloadImages}
               disabled={this.state.imageParts.length === 0}
-              color="primary"
             >
-              <Download />
+              <Download aria-label="download" />
             </IconButton>
-            <IconButton color="secondary" onClick={this.handleCopy}>
-              <ContentCopy />
+
+            {/* Copy Formatted Text */}
+            <IconButton
+              color="secondary"
+              onClick={this.handleCopy}
+              disabled={this.state.imageParts.length === 0}
+            >
+              <ContentCopy aria-label="copy-formatted-text" />
             </IconButton>
           </Box>
+
+          {/* Reset */}
+          {this.state.imageParts.length !== 0 ? (
+            <Box sx={{ display: "flex", justifyContent: "center", pt: 8 }}>
+              <IconButton
+                color="error"
+                onClick={this.handleReset}
+                disabled={this.state.imageParts.length === 0}
+              >
+                <Replay area-label="reset-page" />
+              </IconButton>
+            </Box>
+          ) : null}
         </Container>
       </div>
     );
@@ -127,6 +151,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
 
     this.setState({
       isUploading: true,
+      emojiName: event.currentTarget.files[0].name.split(".")[0],
     });
 
     var response = await axios.put(
@@ -147,6 +172,8 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
 
     const zip = new JSZip();
     const emojiZip = zip.folder(this.state.emojiName);
+    const emojiName =
+      this.state.emojiName === "" ? "emoji" : this.state.emojiName;
 
     for (var i = 0; i < this.state.imageParts.length; i++) {
       var base64ImageString = this.state.imageParts[i];
@@ -161,11 +188,9 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
         );
       }
 
-      emojiZip?.file(
-        `${this.state.emojiName}-${i + 1}.png`,
-        base64ImageString,
-        { base64: true }
-      );
+      emojiZip?.file(`${emojiName}-${i + 1}.png`, base64ImageString, {
+        base64: true,
+      });
 
       this.setState({
         isDownloading: false,
@@ -173,16 +198,10 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
     }
 
     const archive = await zip.generateAsync({ type: "blob" });
-    saveAs(archive, this.state.emojiName);
+    saveAs(archive, emojiName);
   }
 
   handleEmojiNameChange(event: React.ChangeEvent<HTMLInputElement>) {
-    if (event.currentTarget.value === "") {
-      this.setState({
-        emojiName: "emoji",
-      });
-    }
-
     this.setState({
       emojiName: event.currentTarget.value,
     });
@@ -191,12 +210,22 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
   handleCopy() {
     var formattedText = "";
 
+    const emojiName =
+      this.state.emojiName === "" ? "emoji" : this.state.emojiName;
+
     for (var i = 0; i < this.state.imageParts.length; i++) {
-      formattedText += `:${this.state.emojiName}-${i + 1}:`;
+      formattedText += `:${emojiName}-${i + 1}:`;
       if ((i + 1) % 7 === 0) {
         formattedText += "\n";
       }
     }
     navigator.clipboard.writeText(formattedText);
+  }
+
+  handleReset() {
+    this.setState({
+      emojiName: "",
+      imageParts: [],
+    });
   }
 }
