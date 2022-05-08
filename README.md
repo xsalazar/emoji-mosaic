@@ -12,6 +12,14 @@ This website allows for taking a source image, slicing it into smaller images th
 
 ### Download Image Parts
 
+#### Bulk Upload Emoji to Slack
+
+Slack currently does not expose a way to bulk upload emoji through their web interface; however, this Google Chrome extension can be used to make this upload process quick and easy!
+
+[Neutral Face Emoji Tools](https://chrome.google.com/webstore/detail/neutral-face-emoji-tools/anchoacphlfbdomdlomnbbfhcmcdmjej)
+
+#### Image Parts
+
 ![](./assets/readme/starry-night/starry-night-1.png) ![](./assets/readme/starry-night/starry-night-2.png) ![](./assets/readme/starry-night/starry-night-3.png) ![](./assets/readme/starry-night/starry-night-4.png) ![](./assets/readme/starry-night/starry-night-5.png) ![](./assets/readme/starry-night/starry-night-6.png) ![](./assets/readme/starry-night/starry-night-7.png)
 
 ![](./assets/readme/starry-night/starry-night-8.png) ![](./assets/readme/starry-night/starry-night-9.png) ![](./assets/readme/starry-night/starry-night-10.png) ![](./assets/readme/starry-night/starry-night-11.png) ![](./assets/readme/starry-night/starry-night-12.png) ![](./assets/readme/starry-night/starry-night-13.png) ![](./assets/readme/starry-night/starry-night-14.png)
