@@ -96,7 +96,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
           </Box>
 
           {/* Configuration / Download */}
-          <Box sx={{ display: "flex", justifyContent: "center", pt: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
             {/* Emoji Name */}
             <TextField
               id="standard-basic"
@@ -129,7 +129,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
 
           {/* Reset */}
           {this.state.imageParts.length !== 0 ? (
-            <Box sx={{ display: "flex", justifyContent: "center", pt: 8 }}>
+            <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
               <IconButton
                 color="error"
                 onClick={this.handleReset}
