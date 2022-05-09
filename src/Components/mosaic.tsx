@@ -8,7 +8,7 @@ import {
   IconButton,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Download, Upload, ContentCopy, Replay } from "@mui/icons-material";
+import { Download, Upload, ContentCopy, Clear } from "@mui/icons-material";
 import saveAs from "file-saver";
 import JSZip from "jszip";
 import axios from "axios";
@@ -36,7 +36,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
     this.downloadImages = this.downloadImages.bind(this);
     this.handleEmojiNameChange = this.handleEmojiNameChange.bind(this);
     this.handleCopy = this.handleCopy.bind(this);
-    this.handleReset = this.handleReset.bind(this);
+    this.handleClear = this.handleClear.bind(this);
   }
   render() {
     const renderedImages = [];
@@ -127,15 +127,15 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
             </IconButton>
           </Box>
 
-          {/* Reset */}
+          {/* Clear */}
           {this.state.imageParts.length !== 0 ? (
             <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
               <IconButton
                 color="error"
-                onClick={this.handleReset}
+                onClick={this.handleClear}
                 disabled={this.state.imageParts.length === 0}
               >
-                <Replay area-label="reset-page" />
+                <Clear area-label="clear-page" />
               </IconButton>
             </Box>
           ) : null}
@@ -222,7 +222,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
     navigator.clipboard.writeText(formattedText);
   }
 
-  handleReset() {
+  handleClear() {
     this.setState({
       emojiName: "",
       imageParts: [],
