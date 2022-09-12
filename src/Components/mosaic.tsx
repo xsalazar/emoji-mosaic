@@ -6,9 +6,16 @@ import {
   ImageList,
   ImageListItem,
   IconButton,
+  Snackbar,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Download, Upload, ContentCopy, Clear } from "@mui/icons-material";
+import {
+  Download,
+  Upload,
+  ContentCopy,
+  Clear,
+  Close,
+} from "@mui/icons-material";
 import saveAs from "file-saver";
 import JSZip from "jszip";
 import axios from "axios";
@@ -17,8 +24,12 @@ interface MosaicProps {}
 interface MosaicState {
   isUploading: boolean;
   isDownloading: boolean;
+  hasError: boolean;
   emojiName: string;
-  imageParts: Array<string>;
+  imageData: {
+    imageParts: Array<string>;
+    isLandscape: boolean;
+  };
 }
 
 export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
@@ -28,8 +39,9 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
     this.state = {
       isUploading: false,
       isDownloading: false,
+      hasError: false,
       emojiName: "",
-      imageParts: [],
+      imageData: { imageParts: [], isLandscape: false },
     };
 
     this.uploadImage = this.uploadImage.bind(this);
@@ -37,16 +49,18 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
     this.handleEmojiNameChange = this.handleEmojiNameChange.bind(this);
     this.handleCopy = this.handleCopy.bind(this);
     this.handleClear = this.handleClear.bind(this);
+    this.handleErrorClose = this.handleErrorClose.bind(this);
   }
+
   render() {
     const renderedImages = [];
-    for (var i = 0; i < this.state.imageParts.length; i++) {
+    const { emojiName, isUploading, hasError } = this.state;
+    const { imageParts, isLandscape } = this.state.imageData;
+
+    for (var i = 0; i < imageParts.length; i++) {
       renderedImages.push(
-        <ImageListItem key={`${this.state.emojiName}-${i + 1}`}>
-          <img
-            src={this.state.imageParts[i]}
-            alt={`${this.state.emojiName}-${i + 1}`}
-          />
+        <ImageListItem key={`${emojiName}-${i + 1}`}>
+          <img src={imageParts[i]} alt={`${emojiName}-${i + 1}`} />
         </ImageListItem>
       );
     }
@@ -64,7 +78,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
               pb: 2,
             }}
           >
-            {this.state.imageParts.length === 0 ? (
+            {imageParts.length === 0 ? (
               <label htmlFor="contained-button-file">
                 <input
                   hidden
@@ -76,7 +90,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
                 <LoadingButton
                   variant="contained"
                   component="span"
-                  loading={this.state.isUploading}
+                  loading={isUploading}
                   startIcon={<Upload />}
                   loadingPosition="start"
                 >
@@ -86,7 +100,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
             ) : (
               <ImageList
                 sx={{ maxHeight: "440px" }}
-                cols={7}
+                cols={isLandscape ? 5 : 4}
                 gap={2}
                 variant="quilted"
               >
@@ -94,6 +108,24 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
               </ImageList>
             )}
           </Box>
+
+          {/* Error Toast */}
+          <Snackbar
+            action={
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={this.handleErrorClose}
+              >
+                <Close fontSize="small" />
+              </IconButton>
+            }
+            open={hasError}
+            onClose={this.handleErrorClose}
+            autoHideDuration={4000}
+            message="🙈 Uh oh, something went wrong -- sorry! Try again soon"
+          />
 
           {/* Configuration / Download */}
           <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
@@ -103,16 +135,16 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
               label=":emoji-name:"
               variant="outlined"
               size="small"
-              value={this.state.emojiName}
+              value={emojiName}
               onChange={this.handleEmojiNameChange}
-              disabled={this.state.imageParts.length === 0}
+              disabled={imageParts.length === 0}
             />
 
             {/* Download Button */}
             <IconButton
               color="primary"
               onClick={this.downloadImages}
-              disabled={this.state.imageParts.length === 0}
+              disabled={imageParts.length === 0}
             >
               <Download aria-label="download" />
             </IconButton>
@@ -121,19 +153,19 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
             <IconButton
               color="secondary"
               onClick={this.handleCopy}
-              disabled={this.state.imageParts.length === 0}
+              disabled={imageParts.length === 0}
             >
               <ContentCopy aria-label="copy-formatted-text" />
             </IconButton>
           </Box>
 
           {/* Clear */}
-          {this.state.imageParts.length !== 0 ? (
+          {imageParts.length !== 0 ? (
             <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
               <IconButton
                 color="error"
                 onClick={this.handleClear}
-                disabled={this.state.imageParts.length === 0}
+                disabled={imageParts.length === 0}
               >
                 <Clear area-label="clear-page" />
               </IconButton>
@@ -154,15 +186,23 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
       emojiName: event.currentTarget.files[0].name.split(".")[0],
     });
 
-    var response = await axios.put(
-      `https://14b8zg5490.execute-api.us-west-2.amazonaws.com/`,
-      event.currentTarget.files[0]
-    );
+    try {
+      var response = await axios.put(
+        `https://14b8zg5490.execute-api.us-west-2.amazonaws.com/`,
+        event.currentTarget.files[0]
+      );
 
-    this.setState({
-      imageParts: response.data,
-      isUploading: false,
-    });
+      this.setState({
+        imageData: response.data.imageData,
+        isUploading: false,
+      });
+    } catch (e) {
+      this.setState({
+        emojiName: "",
+        hasError: true,
+        isUploading: false,
+      });
+    }
   }
 
   async downloadImages() {
@@ -170,13 +210,15 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
       isDownloading: true,
     });
 
-    const zip = new JSZip();
-    const emojiZip = zip.folder(this.state.emojiName);
-    const emojiName =
-      this.state.emojiName === "" ? "emoji" : this.state.emojiName;
+    const { emojiName: emojiNameState } = this.state;
+    const { imageParts } = this.state.imageData;
 
-    for (var i = 0; i < this.state.imageParts.length; i++) {
-      var base64ImageString = this.state.imageParts[i];
+    const zip = new JSZip();
+    const emojiZip = zip.folder(emojiNameState);
+    const emojiName = emojiNameState === "" ? "emoji" : emojiNameState;
+
+    for (var i = 0; i < imageParts.length; i++) {
+      var base64ImageString = imageParts[i];
 
       // Trim base64 metadata from string
       // data:image/png;base64,iVBORw0KGgo...
@@ -209,13 +251,15 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
 
   handleCopy() {
     var formattedText = "";
+    const { emojiName: emojiNameState } = this.state;
+    const { imageParts, isLandscape } = this.state.imageData;
 
-    const emojiName =
-      this.state.emojiName === "" ? "emoji" : this.state.emojiName;
+    const emojiName = emojiNameState === "" ? "emoji" : emojiNameState;
+    const breakpoint = isLandscape ? 5 : 4;
 
-    for (var i = 0; i < this.state.imageParts.length; i++) {
+    for (var i = 0; i < imageParts.length; i++) {
       formattedText += `:${emojiName}-${i + 1}:`;
-      if ((i + 1) % 7 === 0) {
+      if ((i + 1) % breakpoint === 0) {
         formattedText += "\n";
       }
     }
@@ -225,7 +269,13 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
   handleClear() {
     this.setState({
       emojiName: "",
-      imageParts: [],
+      imageData: { imageParts: [], isLandscape: false },
+    });
+  }
+
+  handleErrorClose() {
+    this.setState({
+      hasError: false,
     });
   }
 }
