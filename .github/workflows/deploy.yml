@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "app/**"
+      - "src/**"
       - "public/**"
   workflow_dispatch:
 
