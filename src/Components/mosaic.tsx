@@ -28,7 +28,7 @@ interface MosaicState {
   emojiName: string;
   imageData: {
     imageParts: Array<string>;
-    isLandscape: boolean;
+    imageWidth: number;
   };
 }
 
@@ -41,7 +41,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
       isDownloading: false,
       hasError: false,
       emojiName: "",
-      imageData: { imageParts: [], isLandscape: false },
+      imageData: { imageParts: [], imageWidth: 0 },
     };
 
     this.uploadImage = this.uploadImage.bind(this);
@@ -55,7 +55,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
   render() {
     const renderedImages = [];
     const { emojiName, isUploading, hasError } = this.state;
-    const { imageParts, isLandscape } = this.state.imageData;
+    const { imageParts, imageWidth } = this.state.imageData;
 
     for (var i = 0; i < imageParts.length; i++) {
       renderedImages.push(
@@ -103,7 +103,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
             ) : (
               <ImageList
                 sx={{ maxHeight: "440px" }}
-                cols={isLandscape ? 5 : 4}
+                cols={imageWidth}
                 gap={2}
                 variant="quilted"
               >
@@ -243,10 +243,10 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
   handleCopy() {
     var formattedText = "";
     const { emojiName: emojiNameState } = this.state;
-    const { imageParts, isLandscape } = this.state.imageData;
+    const { imageParts, imageWidth } = this.state.imageData;
 
     const emojiName = emojiNameState === "" ? "emoji" : emojiNameState;
-    const breakpoint = isLandscape ? 5 : 4;
+    const breakpoint = imageWidth;
 
     for (var i = 0; i < imageParts.length; i++) {
       formattedText += `:${emojiName}-${i + 1}:`;
@@ -260,7 +260,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
   handleClear() {
     this.setState({
       emojiName: "",
-      imageData: { imageParts: [], isLandscape: false },
+      imageData: { imageParts: [], imageWidth: 0 },
     });
   }
 
