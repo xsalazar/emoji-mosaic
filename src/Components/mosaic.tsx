@@ -60,7 +60,10 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
     for (var i = 0; i < imageParts.length; i++) {
       renderedImages.push(
         <ImageListItem key={`${emojiName}-${i + 1}`}>
-          <img src={imageParts[i]} alt={`${emojiName}-${i + 1}`} />
+          <img
+            src={`data:image/png;base64,${imageParts[i]}`}
+            alt={`${emojiName}-${i + 1}`}
+          />
         </ImageListItem>
       );
     }
@@ -218,19 +221,7 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
     const emojiName = emojiNameState === "" ? "emoji" : emojiNameState;
 
     for (var i = 0; i < imageParts.length; i++) {
-      var base64ImageString = imageParts[i];
-
-      // Trim base64 metadata from string
-      // data:image/png;base64,iVBORw0KGgo...
-      var index = base64ImageString.indexOf(",");
-      if (index !== -1) {
-        base64ImageString = base64ImageString.substring(
-          index + 1,
-          base64ImageString.length
-        );
-      }
-
-      emojiZip?.file(`${emojiName}-${i + 1}.png`, base64ImageString, {
+      emojiZip?.file(`${emojiName}-${i + 1}.png`, imageParts[i], {
         base64: true,
       });
 
