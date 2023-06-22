@@ -69,113 +69,111 @@ export default class Mosaic extends React.Component<MosaicProps, MosaicState> {
     }
 
     return (
-      <div style={{ height: "calc(100vh - 200px)" }}>
-        <Container maxWidth="sm">
-          {/* Upload / Display */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "440px",
-              pb: 2,
-            }}
-          >
-            {imageParts.length === 0 ? (
-              <label htmlFor="contained-button-file">
-                <input
-                  hidden
-                  accept="image/*"
-                  id="contained-button-file"
-                  type="file"
-                  onChange={this.uploadImage}
-                />
-                <LoadingButton
-                  variant="contained"
-                  component="span"
-                  loading={isUploading}
-                  startIcon={<Upload />}
-                  loadingPosition="start"
-                >
-                  Upload Image
-                </LoadingButton>
-              </label>
-            ) : (
-              <ImageList
-                sx={{ maxHeight: "440px" }}
-                cols={imageWidth}
-                gap={2}
-                variant="quilted"
+      <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
+        {/* Upload / Display */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "440px",
+            pb: 2,
+          }}
+        >
+          {imageParts.length === 0 ? (
+            <label htmlFor="contained-button-file">
+              <input
+                hidden
+                accept="image/*"
+                id="contained-button-file"
+                type="file"
+                onChange={this.uploadImage}
+              />
+              <LoadingButton
+                variant="contained"
+                component="span"
+                loading={isUploading}
+                startIcon={<Upload />}
+                loadingPosition="start"
               >
-                {renderedImages}
-              </ImageList>
-            )}
-          </Box>
+                Upload Image
+              </LoadingButton>
+            </label>
+          ) : (
+            <ImageList
+              sx={{ maxHeight: "440px" }}
+              cols={imageWidth}
+              gap={2}
+              variant="quilted"
+            >
+              {renderedImages}
+            </ImageList>
+          )}
+        </Box>
 
-          {/* Error Toast */}
-          <Snackbar
-            action={
-              <IconButton
-                size="small"
-                aria-label="close"
-                color="inherit"
-                onClick={this.handleErrorClose}
-              >
-                <Close fontSize="small" />
-              </IconButton>
-            }
-            open={hasError}
-            onClose={this.handleErrorClose}
-            autoHideDuration={4000}
-            message="🙈 Uh oh, something went wrong -- sorry! Try again soon"
+        {/* Error Toast */}
+        <Snackbar
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={this.handleErrorClose}
+            >
+              <Close fontSize="small" />
+            </IconButton>
+          }
+          open={hasError}
+          onClose={this.handleErrorClose}
+          autoHideDuration={4000}
+          message="🙈 Uh oh, something went wrong -- sorry! Try again soon"
+        />
+
+        {/* Configuration / Download */}
+        <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
+          {/* Emoji Name */}
+          <TextField
+            id="standard-basic"
+            label=":emoji-name:"
+            variant="outlined"
+            size="small"
+            value={emojiName}
+            onChange={this.handleEmojiNameChange}
+            disabled={imageParts.length === 0}
           />
 
-          {/* Configuration / Download */}
+          {/* Download Button */}
+          <IconButton
+            color="primary"
+            onClick={this.downloadImages}
+            disabled={imageParts.length === 0}
+          >
+            <Download aria-label="download" />
+          </IconButton>
+
+          {/* Copy Formatted Text */}
+          <IconButton
+            color="secondary"
+            onClick={this.handleCopy}
+            disabled={imageParts.length === 0}
+          >
+            <ContentCopy aria-label="copy-formatted-text" />
+          </IconButton>
+        </Box>
+
+        {/* Clear */}
+        {imageParts.length !== 0 ? (
           <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
-            {/* Emoji Name */}
-            <TextField
-              id="standard-basic"
-              label=":emoji-name:"
-              variant="outlined"
-              size="small"
-              value={emojiName}
-              onChange={this.handleEmojiNameChange}
-              disabled={imageParts.length === 0}
-            />
-
-            {/* Download Button */}
             <IconButton
-              color="primary"
-              onClick={this.downloadImages}
+              color="error"
+              onClick={this.handleClear}
               disabled={imageParts.length === 0}
             >
-              <Download aria-label="download" />
-            </IconButton>
-
-            {/* Copy Formatted Text */}
-            <IconButton
-              color="secondary"
-              onClick={this.handleCopy}
-              disabled={imageParts.length === 0}
-            >
-              <ContentCopy aria-label="copy-formatted-text" />
+              <Clear area-label="clear-page" />
             </IconButton>
           </Box>
-
-          {/* Clear */}
-          {imageParts.length !== 0 ? (
-            <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
-              <IconButton
-                color="error"
-                onClick={this.handleClear}
-                disabled={imageParts.length === 0}
-              >
-                <Clear area-label="clear-page" />
-              </IconButton>
-            </Box>
-          ) : null}
-        </Container>
-      </div>
+        ) : null}
+      </Container>
     );
   }
 
