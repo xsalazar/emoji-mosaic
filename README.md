@@ -1,6 +1,6 @@
 # ✂️ Emoji Mosaic
 
-This repository contains the source code for the website [https://emojimosaic.dev](https://emojimosaic.dev) and was bootstrapped using [`create-react-app`](https://github.com/facebook/create-react-app).
+This repository contains the source code for the website [https://emojimosaic.dev](https://emojimosaic.dev).
 
 This website allows for taking a source image, slicing it into smaller images that can be uploaded as individual emoji to create mosaics in Slack, Discord, or other messaging platforms.
 
