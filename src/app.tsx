@@ -2,7 +2,7 @@ import React from "react";
 import Footer from "./Components/footer";
 import Mosaic from "./Components/mosaic";
 
-function App() {
+export default function App() {
   return (
     <div
       style={{
@@ -17,5 +17,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
