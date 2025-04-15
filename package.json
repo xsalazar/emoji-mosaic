@@ -30,7 +30,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-react": "^4.4.0",
     "axios": "^1.8.4",
     "eslint-config-react-app": "^7.0.1",
     "file-saver": "^2.0.5",
