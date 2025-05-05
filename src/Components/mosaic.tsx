@@ -51,7 +51,7 @@ export default function Mosaic() {
 
     try {
       var response = await axios.put(
-        `https://14b8zg5490.execute-api.us-west-2.amazonaws.com/`,
+        `https://backend.emojimosaic.dev/`,
         event.currentTarget.files[0]
       );
 
