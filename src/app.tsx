@@ -1,6 +1,5 @@
-import React from "react";
-import Footer from "./Components/footer";
-import Mosaic from "./Components/mosaic";
+import Footer from "./Components/footer.js";
+import Mosaic from "./Components/mosaic.js";
 
 export default function App() {
   return (

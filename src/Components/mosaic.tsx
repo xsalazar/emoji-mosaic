@@ -1,22 +1,22 @@
-import React, { useState } from "react";
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
-  Download,
-  Upload,
-  ContentCopy,
   Clear,
   Close,
+  ContentCopy,
+  Download,
+  Upload,
 } from "@mui/icons-material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import IconButton from "@mui/material/IconButton";
+import ImageList from "@mui/material/ImageList";
+import ImageListItem from "@mui/material/ImageListItem";
+import Snackbar from "@mui/material/Snackbar";
+import TextField from "@mui/material/TextField";
+import axios from "axios";
 import saveAs from "file-saver";
 import JSZip from "jszip";
-import axios from "axios";
-import Container from "@mui/material/Container";
-import Box from "@mui/material/Box";
-import ImageList from "@mui/material/ImageList";
-import Snackbar from "@mui/material/Snackbar";
-import IconButton from "@mui/material/IconButton";
-import TextField from "@mui/material/TextField";
-import ImageListItem from "@mui/material/ImageListItem";
+import React, { useState } from "react";
 
 export default function Mosaic() {
   const [isUploading, setIsUploading] = useState(false);
@@ -138,7 +138,7 @@ export default function Mosaic() {
               type="file"
               onChange={uploadImage}
             />
-            <LoadingButton
+            <Button
               variant="contained"
               component="span"
               loading={isUploading}
@@ -146,7 +146,7 @@ export default function Mosaic() {
               loadingPosition="start"
             >
               Upload Image
-            </LoadingButton>
+            </Button>
           </label>
         ) : (
           <ImageList
