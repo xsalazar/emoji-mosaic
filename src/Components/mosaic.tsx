@@ -12,8 +12,8 @@ import IconButton from "@mui/material/IconButton";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 import Snackbar from "@mui/material/Snackbar";
+import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import axios from "axios";
 import saveAs from "file-saver";
 import JSZip from "jszip";
 import React, { useState } from "react";
@@ -37,7 +37,7 @@ export default function Mosaic() {
           src={`data:image/png;base64,${imageData.imageParts[i]}`}
           alt={`${emojiName}-${i + 1}`}
         />
-      </ImageListItem>
+      </ImageListItem>,
     );
   }
 
@@ -50,12 +50,12 @@ export default function Mosaic() {
     setEmojiName(event.currentTarget.files[0].name.split(".")[0]);
 
     try {
-      var response = await axios.put(
-        `https://backend.emojimosaic.dev/`,
-        event.currentTarget.files[0]
-      );
+      var response = await fetch(`https://backend.emojimosaic.dev/`, {
+        method: "PUT",
+        body: event.currentTarget.files[0],
+      });
 
-      setImageData(response.data.imageData);
+      setImageData((await response.json()).imageData);
       setIsUploading(false);
     } catch (e) {
       setEmojiName("");
@@ -77,7 +77,7 @@ export default function Mosaic() {
         imageData.imageParts[i],
         {
           base64: true,
-        }
+        },
       );
 
       setIsDownloading(false);
@@ -88,7 +88,7 @@ export default function Mosaic() {
   };
 
   const handleEmojiNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setEmojiName(event.currentTarget.value);
   };
@@ -118,110 +118,120 @@ export default function Mosaic() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
-      {/* Upload / Display */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "440px",
-          pb: 2,
-        }}
-      >
-        {imageData.imageParts.length === 0 ? (
-          <label htmlFor="contained-button-file">
-            <input
-              hidden
-              accept="image/*"
-              id="contained-button-file"
-              type="file"
-              onChange={uploadImage}
-            />
-            <Button
-              variant="contained"
-              component="span"
-              loading={isUploading}
-              startIcon={<Upload />}
-              loadingPosition="start"
+    <Container
+      maxWidth="sm"
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexGrow: "1",
+      }}
+    >
+      <Stack direction="column">
+        {/* Upload / Display */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "440px",
+            pb: 2,
+          }}
+        >
+          {imageData.imageParts.length === 0 ? (
+            <label htmlFor="contained-button-file">
+              <input
+                hidden
+                accept="image/*"
+                id="contained-button-file"
+                type="file"
+                onChange={uploadImage}
+              />
+              <Button
+                variant="contained"
+                component="span"
+                loading={isUploading}
+                startIcon={<Upload />}
+                loadingPosition="start"
+              >
+                Upload Image
+              </Button>
+            </label>
+          ) : (
+            <ImageList
+              sx={{ maxHeight: "440px" }}
+              cols={imageData.imageWidth}
+              gap={2}
+              variant="quilted"
             >
-              Upload Image
-            </Button>
-          </label>
-        ) : (
-          <ImageList
-            sx={{ maxHeight: "440px" }}
-            cols={imageData.imageWidth}
-            gap={2}
-            variant="quilted"
-          >
-            {renderedImages}
-          </ImageList>
-        )}
-      </Box>
+              {renderedImages}
+            </ImageList>
+          )}
+        </Box>
 
-      {/* Error Toast */}
-      <Snackbar
-        action={
-          <IconButton
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={handleErrorClose}
-          >
-            <Close fontSize="small" />
-          </IconButton>
-        }
-        open={hasError}
-        onClose={handleErrorClose}
-        autoHideDuration={4000}
-        message="🙈 Uh oh, something went wrong -- sorry! Try again soon"
-      />
-
-      {/* Configuration / Download */}
-      <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
-        {/* Emoji Name */}
-        <TextField
-          id="standard-basic"
-          label=":emoji-name:"
-          variant="outlined"
-          size="small"
-          value={emojiName}
-          onChange={handleEmojiNameChange}
-          disabled={imageData.imageParts.length === 0}
+        {/* Error Toast */}
+        <Snackbar
+          action={
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={handleErrorClose}
+            >
+              <Close fontSize="small" />
+            </IconButton>
+          }
+          open={hasError}
+          onClose={handleErrorClose}
+          autoHideDuration={4000}
+          message="🙈 Uh oh, something went wrong -- sorry! Try again soon"
         />
 
-        {/* Download Button */}
-        <IconButton
-          color="primary"
-          onClick={downloadImages}
-          disabled={isDownloading || imageData.imageParts.length === 0}
-        >
-          <Download aria-label="download" />
-        </IconButton>
-
-        {/* Copy Formatted Text */}
-        <IconButton
-          color="secondary"
-          onClick={handleCopy}
-          disabled={imageData.imageParts.length === 0}
-        >
-          <ContentCopy aria-label="copy-formatted-text" />
-        </IconButton>
-      </Box>
-
-      {/* Clear */}
-      {imageData.imageParts.length !== 0 ? (
+        {/* Configuration / Download */}
         <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
+          {/* Emoji Name */}
+          <TextField
+            id="standard-basic"
+            label=":emoji-name:"
+            variant="outlined"
+            size="small"
+            value={emojiName}
+            onChange={handleEmojiNameChange}
+            disabled={imageData.imageParts.length === 0}
+          />
+
+          {/* Download Button */}
           <IconButton
-            color="error"
-            onClick={handleClear}
+            color="primary"
+            onClick={downloadImages}
+            disabled={isDownloading || imageData.imageParts.length === 0}
+          >
+            <Download aria-label="download" />
+          </IconButton>
+
+          {/* Copy Formatted Text */}
+          <IconButton
+            color="secondary"
+            onClick={handleCopy}
             disabled={imageData.imageParts.length === 0}
           >
-            <Clear area-label="clear-page" />
+            <ContentCopy aria-label="copy-formatted-text" />
           </IconButton>
         </Box>
-      ) : null}
+
+        {/* Clear */}
+        {imageData.imageParts.length !== 0 ? (
+          <Box sx={{ display: "flex", justifyContent: "center", pt: 3 }}>
+            <IconButton
+              color="error"
+              onClick={handleClear}
+              disabled={imageData.imageParts.length === 0}
+            >
+              <Clear area-label="clear-page" />
+            </IconButton>
+          </Box>
+        ) : null}
+      </Stack>
     </Container>
   );
 }
